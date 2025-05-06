@@ -1,0 +1,80 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
+html, body, #grid {
+    height: 100%;
+    max-height: 100%;
+    overflow: hidden;
+}
+
+#grid {
+    position: relative;
+    z-index: 10;
+
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+body {
+    display: grid;
+    grid-template-columns: 1fr 3fr; /* example */
+}
+
+#side-infos {
+    height: 100%;
+    background: #b6b6b6;
+
+    display: grid;
+    grid-template-rows: 30% 70%;
+}
+
+#game-grid {
+    width: 100%;
+}
+
+#enemy {
+    background: red;
+
+}
+
+#player-points-container {
+}
+
+#infos {
+    padding: 8px;
+    background: #ff7b29;
+
+    display: grid;
+    grid-template-rows: 10% 90%;
+}
+
+#ships-infos {
+    background: aquamarine;
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+}
+
+#ships-infos .ship {
+}
+
+#ships-infos .ship.sunk {
+    filter: opacity(0.72);
+}
+
+#ships-infos .ship img {
+    max-width: 76%;
+    height: auto;
+}
+
+#video-placeholder {
+    width: 100%;
+    height: 100%;
+}

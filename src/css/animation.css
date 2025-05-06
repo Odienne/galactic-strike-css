@@ -1,0 +1,37 @@
+#cursor {
+    animation: rotate 4s linear infinite;
+}
+
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(180deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.points-popup {
+    position: absolute;
+    color: #ff7b29;
+    font-size: 50px;
+    font-weight: bold;
+    pointer-events: none;
+    animation: pop-up 1s ease-out forwards;
+    z-index: 9999;
+}
+
+@keyframes pop-up {
+    0% {
+        opacity: 1;
+        transform: translateY(0px) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-40px) scale(1.2);
+    }
+}

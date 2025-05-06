@@ -1,0 +1,647 @@
+const gridHtml = document.getElementById('grid');
+let playerTotalPoints = 0;
+/*represents the grid state managed by js*/
+let gameGrid = [];
+
+const squareStates = {
+    UNKNOWN: 0,
+    HIT: 1,
+    MISSED: 2,
+}
+
+let selectedRow = 2;
+let selectedColumn = 4;
+
+let rowDirection = 'add';
+let columnDirection = 'add';
+
+let isColumnLocked = false;
+let isRowLocked = false;
+
+let cursorPosition = {
+    x: selectedRow,
+    y: selectedColumn,
+}
+
+let canFire = true;
+
+/*Sounds*/
+let laserHit = new Audio('src/sfx/ship_explosion.mp3');
+let laserMiss = new Audio('src/sfx/laser_miss.mp3');
+let bgm = new Audio('src/sfx/bgm.mp3');
+
+
+/*ships - ids must be synced with html elements*/
+let initialShips = [
+    {
+        name: 'Carrier',
+        id: 'carrier',
+        points: 20,
+        size: 5,
+        images: {
+            'vertical': [
+                'src/img/ships/default/carrier1.png',
+                'src/img/ships/default/carrier2.png',
+                'src/img/ships/default/carrier3.png',
+                'src/img/ships/default/carrier4.png',
+                'src/img/ships/default/carrier5.png',
+            ],
+            'horizontal': [
+                'src/img/ships/default/carrier1.png',
+                'src/img/ships/default/carrier2.png',
+                'src/img/ships/default/carrier3.png',
+                'src/img/ships/default/carrier4.png',
+                'src/img/ships/default/carrier5.png',
+            ]
+        },
+        positions: []
+    },
+    {
+        name: 'Cruiser',
+        id: 'cruiser',
+        points: 30,
+        size: 3,
+        images: {
+            'vertical': [
+                'src/img/ships/default/cruiser1.png',
+                'src/img/ships/default/cruiser2.png',
+                'src/img/ships/default/cruiser3.png',
+            ],
+            'horizontal': [
+                'src/img/ships/default/cruiser1.png',
+                'src/img/ships/default/cruiser2.png',
+                'src/img/ships/default/cruiser3.png',
+            ]
+        },
+        positions: []
+    },
+    {
+        name: 'Submarine 1',
+        id: 'submarine1',
+        points: 30,
+        size: 2,
+        images: {
+            'vertical': [
+                'src/img/ships/default/submarine1.png',
+                'src/img/ships/default/submarine2.png',
+            ],
+            'horizontal': [
+                'src/img/ships/default/submarine1.png',
+                'src/img/ships/default/submarine2.png',
+            ]
+        },
+        positions: []
+    },
+    {
+        name: 'Submarine 2',
+        id: 'submarine2',
+        points: 40,
+        size: 2,
+        images: {
+            'vertical': [
+                'src/img/ships/default/submarine_dark1.png',
+                'src/img/ships/default/submarine_dark2.png',
+            ],
+            'horizontal': [
+                'src/img/ships/default/submarine_dark1.png',
+                'src/img/ships/default/submarine_dark2.png',
+            ]
+        },
+        positions: []
+    },
+    {
+        name: 'Destroyer',
+        points: 50,
+        id: 'destroyer',
+        size: 1,
+        images: {
+            'vertical': [
+                'src/img/ships/default/destroyer1.png',
+            ],
+            'horizontal': [
+                'src/img/ships/default/destroyer1.png',
+            ]
+        },
+        positions: []
+    },
+]
+let Ships = initialShips;
+
+let hasGameStarted = false;
+
+/*intervals*/
+let moveRowInterval;
+let moveColumnInterval;
+
+/**
+ * Creates a 10x10 grid in html
+ */
+const initGrid = () => {
+    for (let i = 0; i < 10; i++) {
+        gameGrid[i] = []
+        for (let j = 0; j < 10; j++) {
+            let square = document.createElement("div");
+            square.classList.add('square');
+            square.id = i + "-" + j;
+            gridHtml.insertAdjacentElement("beforeend", square);
+
+            gameGrid[i][j] = {square: square, state: squareStates.UNKNOWN, hasShip: false};
+        }
+    }
+}
+
+const initSelectedRow = () => {
+    const squares = document.querySelectorAll(`.square[id^="${selectedRow}-"]`);
+
+    squares.forEach((square) => {
+        square.classList.add('selected');
+    })
+}
+
+const initSelectedColumn = () => {
+    const squares = document.querySelectorAll(`.square[id$="-${selectedColumn}"]`);
+
+    squares.forEach((square) => {
+        square.classList.add('selected');
+    })
+}
+
+const initCursor = () => {
+    cursorPosition.x = selectedRow;
+    cursorPosition.y = selectedColumn;
+
+    const square = document.getElementById(`${cursorPosition.x}-${cursorPosition.y}`);
+    square.insertAdjacentHTML("beforeend", '<div id="cursor"></div>');
+}
+
+const unselectSquares = () => {
+    const squares = document.querySelectorAll('.square.selected');
+
+    squares.forEach((square) => {
+        square.classList.remove('selected');
+    })
+}
+
+/**
+ * Place ships on the grid
+ */
+const initShips = () => {
+    // Loop through each ship
+    Ships.forEach((ship) => {
+        let placed = false;
+        while (!placed) {
+            // Randomly select a starting position for the ship
+            let row = Math.floor(Math.random() * 10);
+            let col = Math.floor(Math.random() * 10);
+
+            // Randomly select a direction for the ship (horizontal or vertical)
+            let direction = Math.random() < 0.5 ? 'horizontal' : 'vertical';
+
+            // Check if the ship can be placed at the selected position
+            let canPlace = true;
+            for (let i = 0; i < ship.size; i++) {
+                if (direction === 'horizontal' && (col + i >= 10 || gameGrid[row][col + i].hasShip)) {
+                    canPlace = false;
+                    break;
+                } else if (direction === 'vertical' && (row + i >= 10 || gameGrid[row + i][col].hasShip)) {
+                    canPlace = false;
+                    break;
+                }
+            }
+
+            if (canPlace) {
+                // Place the ship on the grid
+                for (let i = 0; i < ship.size; i++) {
+                    if (direction === 'horizontal') {
+                        gameGrid[row][col + i].hasShip = true;
+                        let shipCell = document.createElement('div');
+                        shipCell.className = 'ship-cell horizontal';
+                        shipCell.style.backgroundImage = `url(${ship.images['horizontal'][i]})`;
+                        gameGrid[row][col + i].square.appendChild(shipCell);
+
+                        //save position and part status for easier check later
+                        ship.positions.push({x: row, y: col + i, status: squareStates.UNKNOWN});
+                        //also save the ship object into the grid, easier to retrieve later
+                        gameGrid[row][col + i].ship = ship;
+                    } else {
+                        gameGrid[row + i][col].hasShip = true;
+                        let shipCell = document.createElement('div');
+                        shipCell.className = 'ship-cell vertical';
+                        shipCell.style.backgroundImage = `url(${ship.images['vertical'][i]})`;
+                        gameGrid[row + i][col].square.appendChild(shipCell);
+                        //save position and part status for easier check later
+                        ship.positions.push({x: row + i, y: col, status: squareStates.UNKNOWN});
+                        //also save the ship object into the grid, easier to retrieve later
+                        gameGrid[row + i][col].ship = ship;
+                    }
+                }
+                placed = true;
+            }
+        }
+    });
+}
+
+const markRowSelected = () => {
+    //todo
+}
+
+const markColumnSelected = () => {
+    //todo
+}
+
+const fire = () => {
+    canFire = false;
+
+    setTimeout(() => {
+        canFire = true;
+    }, 500)
+
+    // const square = getCursorSquare();
+    const gridSquareInfos = getGridSquareInfo()
+
+    let isShipHit = false;
+    let alreadyHit = false;
+
+    if (gridSquareInfos.hasShip) {
+        isShipHit = gridSquareInfos.state !== squareStates.HIT;
+        alreadyHit = gridSquareInfos.state === squareStates.HIT;
+    }
+
+    //if ship already hit, it counts as a miss
+    if (isShipHit) {
+        laserHit.play()
+        showPointsOnHit(gridSquareInfos.ship);
+
+        gridSquareInfos.state = squareStates.HIT;
+        markSquareHit(gridSquareInfos.square)
+        markShipHit(gridSquareInfos.ship, {x: cursorPosition.x, y: cursorPosition.y});
+
+        let isShipSunk = checkIfNeedToRevealShip(gridSquareInfos.ship);
+        if (isShipSunk) {
+            revealSunkShip(gridSquareInfos.ship);
+            setHtmlInfosShipSunk(gridSquareInfos.ship);
+        }
+    } else { //miss
+        laserMiss.play();
+
+        if (!alreadyHit) {
+            gridSquareInfos.state = squareStates.MISSED;
+            markSquareMissed(gridSquareInfos.square)
+        }
+    }
+
+
+    setTimeout(() => {
+        if (areAllShipsAreSunk()) {
+            showEndGame();
+        }
+    }, 500)
+}
+
+const showEndGame = () => {
+    lockRowCursor();
+    lockColumnCursor();
+
+    const playAgain = confirm("You've won, play again?");
+    if (playAgain) {
+        reset();
+        unlockRowCursor();
+        unlockColumnCursor();
+    } else {
+        reset();
+        unlockRowCursor();
+        unlockColumnCursor();
+    }
+}
+
+const areAllShipsAreSunk = () => {
+    for (let i = 0; i < Ships.length; i++) {
+        for (let y = 0; y < Ships[i].positions.length; y++) {
+            if (Ships[i].positions[y].status !== squareStates.HIT) {
+                return false;
+            }
+        }
+    }
+    return true
+}
+
+const setHtmlInfosShipSunk = (ship) => {
+    //get id of the ship on infos div
+    const shipHtml = document.getElementById(ship.id);
+
+    shipHtml.classList.add('sunk');
+}
+
+const checkIfNeedToRevealShip = (ship) => {
+    //get ship info
+    //check if all parts of the ship are hit
+    if (!ship) {
+        return false;
+    }
+
+    let isSunk = true;
+    for (let i = 0; i < ship.positions.length; i++) {
+        if (ship.positions[i].status !== squareStates.HIT) {
+            isSunk = false;
+            break;
+        }
+    }
+    return isSunk
+}
+const revealSunkShip = (ship) => {
+    //change the class of the corresponding square
+    //find square for each ship.positions
+    for (let i = 0; i < ship.positions.length; i++) {
+        let square = gameGrid[ship.positions[i].x][ship.positions[i].y].square;
+        let shipCell = square.querySelector('.ship-cell');
+        if (shipCell) {
+            shipCell.classList.add('revealed');
+        }
+    }
+}
+
+const markShipHit = (ship, positions) => {
+    if (!ship) {
+        return;
+    }
+    //find ship part by given position and update it to HIT
+    for (let i = 0; i < ship.positions.length; i++) {
+        if (ship.positions[i].x === positions.x && ship.positions[i].y === positions.y) {
+            ship.positions[i].status = squareStates.HIT;
+            break;
+        }
+    }
+}
+
+const getCursorSquare = () => {
+    return document.getElementById(`${cursorPosition.x}-${cursorPosition.y}`);
+}
+const getGridSquareInfo = () => {
+    return gameGrid[cursorPosition.x][cursorPosition.y];
+}
+
+const reset = () => {
+    resetShipsHtmlState();
+    resetCursorPosition();
+    resetGrid();
+    resetShips();
+    clearIntervals();
+    resetBGM();
+    hasGameStarted = false;
+
+    startGame();
+}
+
+const resetShipsHtmlState = () => {
+    Ships.forEach((ship) => {
+        const shipHtml = document.getElementById(ship.id);
+        shipHtml.classList.remove('sunk');
+    })
+}
+
+const resetCursorPosition = () => {
+    selectedRow = 2;
+    selectedColumn = 4;
+}
+
+const clearIntervals = () => {
+    clearInterval(moveColumnInterval);
+    clearInterval(moveRowInterval);
+}
+
+const resetBGM = () => {
+    bgm.pause();
+    bgm.currentTime = 0;
+}
+
+
+const resetGrid = () => {
+    //reset html and object
+    gridHtml.innerHTML = '';
+    gameGrid = [];
+}
+const resetShips = () => {
+    Ships = initialShips;
+}
+
+const markSquareHit = (square) => {
+    square.classList.add('hit')
+}
+
+const markSquareMissed = (square) => {
+    square.classList.add('missed')
+}
+
+const unselectColumn = (column) => {
+    const squares = document.querySelectorAll(`.square[id$="-${column}"]`);
+
+    squares.forEach((square) => {
+        square.classList.remove('selected');
+    })
+}
+const unselectRow = (row) => {
+    const squares = document.querySelectorAll(`.square[id^="${row}-"]`);
+
+    squares.forEach((square) => {
+        square.classList.remove('selected');
+    })
+}
+
+
+const startMoveRow = () => {
+    moveRowInterval = setInterval(() => {
+        if (!isRowLocked) {
+            unselectRow(selectedRow);
+            selectedRow += getNextRowIncrement(selectedRow);
+            initSelectedRow();
+            redrawCursor();
+        }
+    }, 200);
+}
+
+const startMoveColumn = () => {
+    moveColumnInterval = setInterval(() => {
+        if (!isColumnLocked) {
+            unselectColumn(selectedColumn);
+            selectedColumn += getNextColumnIncrement(selectedColumn);
+            initSelectedColumn();
+            redrawCursor();
+        }
+    }, 200);
+}
+
+const showPointsOnHit = (ship) => {
+    const square = getCursorSquare();
+    const pointsPopup = document.createElement('div');
+    const points = ship.points;
+
+    updatePlayerPoints(points);
+
+    pointsPopup.classList.add('points-popup');
+    pointsPopup.textContent = '+ ' + points;
+
+    // Position it relative to the grid
+    const squareRect = square.getBoundingClientRect();
+    const gridRect = gridHtml.getBoundingClientRect();
+
+    pointsPopup.style.left = (squareRect.left - gridRect.left + square.offsetWidth / 2 - 10) + 'px';
+    pointsPopup.style.top = (squareRect.top - gridRect.top + square.offsetHeight / 2 - 10) + 'px';
+
+    gridHtml.appendChild(pointsPopup);
+
+    // Remove after animation
+    setTimeout(() => {
+        gridHtml.removeChild(pointsPopup);
+    }, 1000);
+}
+
+const updatePlayerPoints = (points) => {
+    playerTotalPoints += points;
+    const playerPointsHtml = document.getElementById('player-points');
+    playerPointsHtml.textContent = playerTotalPoints;
+}
+
+
+/**
+ * Manage the direction of the cursor
+ * */
+const getNextRowIncrement = (position) => {
+    if (rowDirection === 'add' && position + 1 > 9) {
+        //reverse
+        rowDirection = 'sub';
+        return -1;
+    } else if (rowDirection === 'add') {
+        return 1;
+    } else if (rowDirection === 'sub' && position - 1 < 0) {
+        //reverse
+        rowDirection = 'add';
+        return 1;
+    } else if (rowDirection === 'sub') {
+        return -1;
+    }
+
+    //so if the cursor does not move, we know the problem is here
+    return 0;
+}
+
+const getNextColumnIncrement = (position) => {
+    if (columnDirection === 'add' && position + 1 > 9) {
+        //reverse
+        columnDirection = 'sub';
+        return -1;
+    } else if (columnDirection === 'add') {
+        return 1;
+    } else if (columnDirection === 'sub' && position - 1 < 0) {
+        //reverse
+        columnDirection = 'add';
+        return 1;
+    } else if (columnDirection === 'sub') {
+        return -1;
+    }
+
+    //so if the cursor does not move, we know the problem is here
+    return 0;
+}
+
+const redrawCursor = () => {
+    deletePreviousCursor();
+    initCursor();
+}
+
+const deletePreviousCursor = () => {
+    const square = document.getElementById(`${cursorPosition.x}-${cursorPosition.y}`);
+    square.querySelector('#cursor').remove();
+}
+
+
+const lockColumnCursor = () => {
+    isColumnLocked = true;
+}
+
+const lockRowCursor = () => {
+    isRowLocked = true;
+}
+
+const unlockColumnCursor = () => {
+    isColumnLocked = false;
+}
+
+const unlockRowCursor = () => {
+    isRowLocked = false;
+}
+
+const checkIfCanFire = () => {
+    return canFire;
+}
+
+const isBgmPlaying = () => {
+    return !bgm.paused;
+}
+
+const startBgm = () => {
+    document.addEventListener('keydown', () => {
+        if (!isBgmPlaying()) {
+            bgm.play();
+            bgm.loop = true;
+        }
+    })
+}
+
+const startGame = () => {
+    initGrid();
+    initShips();
+    initSelectedRow();
+    initSelectedColumn();
+    initCursor();
+
+    startMoveColumn();
+    startMoveRow();
+    hasGameStarted = true;
+    startBgm();
+}
+
+startGame();
+
+
+/*listeners*/
+
+//to start the bgm (need player interaction first in chrome)
+// document.addEventListener('keydown', () => {
+//     if (!hasGameStarted) {
+//         hasGameStarted = true;
+//         bgm.play();
+//         bgm.loop = true;
+//     }
+// })
+/*lock when key pressed or fire*/
+window.addEventListener('keydown', (event) => {
+    switch (event.key) {
+        case 'q':
+            lockColumnCursor();
+            break;
+        case 's':
+            if (checkIfCanFire()) {
+                fire();
+            }
+            break;
+        case 'd':
+            lockRowCursor();
+            break;
+        case 'Enter':
+            reset();
+            break;
+    }
+});
+
+/*unlock when key is released*/
+window.addEventListener('keyup', (event) => {
+    switch (event.key) {
+        case 'q':
+            unlockColumnCursor();
+            break;
+        case 'd':
+            unlockRowCursor();
+            break;
+    }
+});
+
