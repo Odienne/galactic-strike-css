@@ -107,7 +107,7 @@ const dropBomb = (pos, Grid) => {
     void bomb.offsetHeight; // Triggers reflow
 
     // Now animate
-    bomb.style.top = `calc(${targetY}px - 50px)`;
+    bomb.style.top = `${targetY}px`;
 
     // Trigger explosion after animation ends
     setTimeout(() => {
