@@ -120,7 +120,7 @@ export const showExplosion = (pos, Grid) => {
 
     // Create explosion
     const explosion = document.createElement('img');
-    explosion.src = 'src/img/explosion.gif'; // ✅ put your correct path here
+    explosion.src = 'src/img/explosion.gif';
     explosion.classList.add('explosion');
     explosion.style.position = 'absolute';
     explosion.style.left = `${targetX - 40}px`;
@@ -195,7 +195,5 @@ export const getDebugParam = () => {
     const urlParams = new URLSearchParams(window.location.search);
     return (urlParams.get('debug') != null && urlParams.get('debug') === 'true') || false;
 }
-
-let debug = Boolean(getDebugParam());
 
 
