@@ -13,9 +13,17 @@ html, body, #grid {
     position: relative;
     z-index: 10;
 
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(10, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+
+    width: 100%; /* Ensure width is set */
+    height: 100%; /* Optional, depends on use case */
+}
+
+#grid .square {
+    width: 10%;   /* 100 / 10 columns */
+    height: 10%;  /* 100 / 10 rows */
+    box-sizing: border-box;
 }
 
 body {
@@ -40,9 +48,6 @@ body {
 
 }
 
-#player-points-container {
-}
-
 #infos {
     padding: 8px;
     background: #ff7b29;
@@ -62,15 +67,12 @@ body {
     align-content: center;
 }
 
-#ships-infos .ship {
-}
-
-#ships-infos .ship.sunk {
+#ships-infos .ship img.sunk {
     filter: opacity(0.72);
 }
 
 #ships-infos .ship img {
-    max-width: 76%;
+    max-width: 70%;
     height: auto;
 }
 
@@ -78,3 +80,4 @@ body {
     width: 100%;
     height: 100%;
 }
+

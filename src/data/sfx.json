@@ -1,0 +1,30 @@
+{
+  "fire": {
+    "id": "1",
+    "name": "fire",
+    "src": "src/sfx/fire.mp3",
+    "description": "Played when player presses the fire button",
+    "object": null
+  },
+  "laser-hit": {
+    "id": "2",
+    "name": "laser_hit",
+    "src": "src/sfx/laser_hit.mp3",
+    "description":  "Played when laser hits something",
+    "object":  null
+  },
+  "laser-miss": {
+    "id": "3",
+    "name": "laser_miss",
+    "src": "src/sfx/laser_miss.mp3",
+    "description":  "Played when laser misses",
+    "object":  null
+  },
+  "ship-explosion": {
+    "id": "4",
+    "name": "ship_explosion",
+    "src": "src/sfx/ship_explosion.mp3",
+    "description":  "Played when ship is sunk",
+    "object":  null
+  }
+}

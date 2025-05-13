@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="src/css/bg.css">
     <link rel="stylesheet" href="src/css/animation.css">
+    <script src="src/js/translation.js"></script>
 </head>
 <body>
 
@@ -20,7 +21,8 @@
     </div>
     <div id="infos">
         <div id="player-points-container">
-            <h2>Total points : <span id="player-points">0</span></h2>
+            <h2><span id="score-text"></span> <span id="player-points">0</span></h2>
+            <h3 id="timer">03:00</h3>
         </div>
         <div id="ships-infos">
             <div class="ship" id="destroyer">
@@ -33,10 +35,10 @@
                 <img src="src/img/ships/submarine2.png" alt="">
             </div>
             <div class="ship" id="cruiser">
-                <img src="src/img/ships/cruiser.png" alt="">
+                <img src="src/img/ships/cruiser.png" alt="" style="max-width: 80%;">
             </div>
             <div class="ship" id="carrier">
-                <img src="src/img/ships/carrier.png" alt="">
+                <img src="src/img/ships/carrier.png" alt="" style="max-width: 100%;">
             </div>
         </div>
     </div>
@@ -47,6 +49,10 @@
         Your browser does not support the video tag.
     </video>
 
+    <div id="column-highlight"></div>
+    <div id="row-highlight"></div>
+    <div id="viewfinder"></div>
+
     <main id="grid">
 
     </main>
@@ -54,6 +60,9 @@
 
 
 <script src="src/js/background.js"></script>
-<script src="src/js/main.js"></script>
+<script src="src/js/timer.js"></script>
+
+<script type="module" src="src/js/main.js"></script>
+<script type="module" src="src/js/cursor.js"></script>
 </body>
 </html>

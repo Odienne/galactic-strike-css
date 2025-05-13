@@ -1,4 +1,4 @@
 const video = document.getElementById('bg-video');
 
 // Initial playback setup
-video.playbackRate = 0.8;
+video.playbackRate = 0.5;

@@ -1,24 +1,7 @@
-#cursor {
-    animation: rotate 4s linear infinite;
-}
-
-
-@keyframes rotate {
-    0% {
-        transform: rotate(0deg);
-    }
-    50% {
-        transform: rotate(180deg);
-    }
-    100% {
-        transform: rotate(0deg);
-    }
-}
-
 .points-popup {
     position: absolute;
     color: #ff7b29;
-    font-size: 50px;
+    font-size: 2em;
     font-weight: bold;
     pointer-events: none;
     animation: pop-up 1s ease-out forwards;
@@ -33,5 +16,56 @@
     100% {
         opacity: 0;
         transform: translateY(-40px) scale(1.2);
+    }
+}
+
+
+@keyframes tremble {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+    75% {
+        transform: translateX(-3px);
+    }
+    100% {
+        transform: translateX(3px);
+    }
+}
+
+
+.missile {
+    position: absolute;
+    height: 100px;
+    width: 50px;
+    background: url("/src/img/missile.png") no-repeat 100% 100%;
+    background-size: contain;
+    z-index: 10;
+    pointer-events: none;
+}
+
+/* comment this to play the gif explosion instead  */
+.explosion {
+    position: absolute;
+    background: radial-gradient(circle, red, orange, yellow);
+    border-radius: 50%;
+    opacity: 0;
+    animation: explode 0.4s forwards;
+    pointer-events: none;
+}
+
+@keyframes explode {
+    0% {
+        transform: scale(0.5);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2);
+        opacity: 0;
     }
 }
