@@ -52,10 +52,12 @@
 /* comment this to play the gif explosion instead  */
 .explosion {
     position: absolute;
-    background: radial-gradient(circle, red, orange, yellow);
+    width: 222px;
+    height: 222px;
+    background: radial-gradient(circle, #ff2600, #ff8000, yellow);
     border-radius: 50%;
     opacity: 0;
-    animation: explode 0.4s forwards;
+    animation: explode 0.5s forwards;
     pointer-events: none;
 }
 

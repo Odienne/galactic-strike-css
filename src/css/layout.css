@@ -37,10 +37,13 @@ body {
 
     display: grid;
     grid-template-rows: 30% 70%;
+    position: relative;
+    z-index: 100;
 }
 
 #game-grid {
     width: 100%;
+    position: relative;
 }
 
 #enemy {

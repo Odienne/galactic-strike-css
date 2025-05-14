@@ -36,7 +36,7 @@ function onFireEvent(event) {
         GameState.canFire = false;
 
         const {x, y} = event.detail;
-        fire({x, y}, GameState.grid);
+        fire({x, y}, GameState.grid, event.detail.weapon);
 
         setTimeout(() => {
             GameState.canFire = true;

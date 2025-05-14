@@ -13,6 +13,10 @@ class Grid {
     }
 
     init() {
+        //also reset here it's called by reset function
+        this.grid = [];
+        this.ships = [];
+
         for (let i = 0; i < this.size; i++) {
             this.grid[i] = [];
             for (let j = 0; j < this.size; j++) {
@@ -24,7 +28,6 @@ class Grid {
             }
         }
         this.placeShips(this.shipsData);
-
         document.dispatchEvent(GridInitEvent)
     }
 
@@ -146,19 +149,17 @@ class Grid {
 
     resetShipsHtmlState() {
         this.ships.forEach((ship) => {
-            ship.htmlElement.classList.remove('revealed');
-        })
+            const shipFullImage = document.querySelector(`#${ship.id} img`);
+            shipFullImage.src = "src/img/ships/" + ship.id + ".png";
+            shipFullImage.classList.remove('sunk');
+        });
     }
 
     resetGrid() {
         //reset html and object
-        GRID_HTML.innerHTML = '';
+        this.htmlElement.innerHTML = '';
         this.init();
-        this.placeShips(this.shipsData);
-    }
-
-    resetShips() {
-        //todo ?
+        this.resetShipsHtmlState();
     }
 }
 

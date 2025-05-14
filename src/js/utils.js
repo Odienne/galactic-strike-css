@@ -41,7 +41,7 @@ export const fetchShipsData = async () => {
 
 
 export const showEndGame = (Grid) => {
-//todo
+    //todo
     console.log('END GAME')
 
     setTimeout(() => {
@@ -53,41 +53,55 @@ export const restart = (Grid) => {
     Grid.resetGrid();
 }
 
-export const fire = (pos, Grid) => {
-    const ship = Grid.getShip(pos);
-    const square = Grid.getSquare(pos);
+export const fire = (pos, Grid, weapon) => {
+    const {x, y} = pos;
+    const affected = weapon.getAffectedCells(x, y);
 
-    const alreadyHitSquare = square.classList.contains(SQUARE_STATES.HIT.toLowerCase());
 
-    dropBomb(pos, Grid);
+    affected.forEach(([r, c], index) => {
+        const currentPos = {x: r, y: c};
 
-    //timeout to sync with dropBomb animation
-    setTimeout(() => {
-        //first time hit on a square and it did hit a ship
-        if (ship && !alreadyHitSquare) {
-            Grid.updateSquareState(pos, SQUARE_STATES.HIT);
-            Grid.updateShipState(pos, SQUARE_STATES.HIT);
+        // Delay bomb drop
+        setTimeout(() => {
+            dropBomb(currentPos, Grid);
 
-            showExplosion(pos, Grid);
-            playLaserHitSound();
-            showPointsOnHit(square, ship);
+            // Slight delay after bomb before checking hit
+            setTimeout(() => {
+                try {
+                    const square = Grid.getSquare(currentPos);
+                    const ship = Grid.getShip(currentPos);
+                    const alreadyHitSquare = square.classList.contains(SQUARE_STATES.HIT.toLowerCase());
 
-            if (ship.isSunk()) {
-                setTimeout(() => {
-                    ship.revealSunkShip();
-                    playShipExplosion();
-                }, 600);
-            }
-        } else if (!alreadyHitSquare) {
-            Grid.updateSquareState(pos, SQUARE_STATES.MISSED);
-            playLaserMissSound();
-        }
-    }, 500)
+                    if (ship && !alreadyHitSquare) {
+                        Grid.updateSquareState(currentPos, SQUARE_STATES.HIT);
+                        Grid.updateShipState(currentPos, SQUARE_STATES.HIT);
+
+                        showExplosion(currentPos, Grid);
+                        playLaserHitSound();
+                        showPointsOnHit(square, ship);
+
+                        if (ship.isSunk()) {
+                            setTimeout(() => {
+                                ship.revealSunkShip();
+                                playShipExplosion();
+                            }, 600);
+                        }
+                    } else if (!alreadyHitSquare) {
+                        Grid.updateSquareState(currentPos, SQUARE_STATES.MISSED);
+                        playLaserMissSound();
+                    }
+
+                } catch (e) {
+                    // Ignore out-of-bounds or failed cell access
+                }
+            }, 500); // Wait for bomb animation
+        }, index * 100); // This delays each bomb based on its order
+    });
 
     setTimeout(() => {
         if (Grid.areAllShipsSunk()) showEndGame(Grid);
-    }, 1500);
-}
+    }, 500 + affected.length * 150 + 500); // wait till all animations wrap
+};
 
 const dropBomb = (pos, Grid) => {
     const bomb = document.createElement('div');
@@ -96,52 +110,65 @@ const dropBomb = (pos, Grid) => {
 
     const {targetX, targetY} = getTargetCoords(pos, Grid);
 
-    // Initial position (top of the screen, in correct column)
-    bomb.style.left = `${targetX}px`;
-    bomb.style.top = `-30px`;
+    try {
+        // Initial position (top of the screen, in correct column)
+        bomb.style.left = `${targetX}px`;
+        bomb.style.top = `-30px`;
 
-    // Enable transition via CSS class
-    bomb.style.transition = 'top 0.6s ease-in';
+        // Enable transition via CSS class
+        bomb.style.transition = 'top 0.6s ease-in';
 
-    // 👇 Force a reflow here
-    void bomb.offsetHeight; // Triggers reflow
+        // 👇 Force a reflow here
+        void bomb.offsetHeight; // Triggers reflow
 
-    // Now animate
-    bomb.style.top = `${targetY}px`;
+        // Now animate
+        bomb.style.top = `${targetY}px`;
 
-    // Trigger explosion after animation ends
-    setTimeout(() => {
-       Grid.htmlElement.removeChild(bomb);
-    }, 500);
+        // Trigger explosion after animation ends
+        setTimeout(() => {
+            Grid.htmlElement.removeChild(bomb);
+        }, 500);
+    } catch (e) {
+        //outbound targetX or Y
+    }
 }
 
 export const showExplosion = (pos, Grid) => {
     const {targetX, targetY} = getTargetCoords(pos, Grid);
 
-    // Create explosion
-    const explosion = document.createElement('img');
-    explosion.src = 'src/img/explosion.gif';
-    explosion.classList.add('explosion');
-    explosion.style.position = 'absolute';
-    explosion.style.left = `${targetX - 40}px`;
-    explosion.style.top = `${targetY - 40}px`;
-    explosion.style.width = '120px';
-    explosion.style.height = '120px';
-    explosion.style.pointerEvents = 'none';
-    explosion.style.zIndex = '20';
+    try {
+        // Create explosion
+        const explosion = document.createElement('img');
+        explosion.src = 'src/img/explosion.gif';
+        explosion.classList.add('explosion');
+        explosion.style.position = 'absolute';
+        explosion.style.left = `${targetX - 40}px`;
+        explosion.style.top = `${targetY - 40}px`;
+        explosion.style.width = '222px';
+        explosion.style.height = '222px';
+        explosion.style.pointerEvents = 'none';
+        explosion.style.zIndex = '20';
 
-    Grid.htmlElement.appendChild(explosion);
+        Grid.htmlElement.appendChild(explosion);
 
-    // Remove explosion after it plays
-    setTimeout(() => {
-        Grid.htmlElement.removeChild(explosion);
-    }, 600);
+        // Remove explosion after it plays
+        setTimeout(() => {
+            Grid.htmlElement.removeChild(explosion);
+        }, 600);
+    } catch (e) {
+        //outbound targetX or Y
+    }
 }
 
 const getTargetCoords = (pos, Grid) => {
     const {x, y} = pos;
 
     const targetCell = document.getElementById(`${x}-${y}`);
+
+    if (!targetCell) {
+        return {targetX: -100, targetY: -100}; // fallback
+    }
+
     const cellRect = targetCell.getBoundingClientRect();
     const gridRect = Grid.htmlElement.getBoundingClientRect();
     // Calculate relative position inside the grid
@@ -190,6 +217,40 @@ const updatePlayerPoints = (points) => {
 
     document.dispatchEvent(UpdatePlayerPointsEvent);
 }
+
+export const calculateAffectedCells = (row, col, weapon) => {
+    const inBounds = (r, c) => r >= 0 && r < 10 && c >= 0 && c < 10;
+
+    const cells = [];
+
+    switch (weapon) {
+        case "laser":
+            if (inBounds(row, col)) {
+                cells.push([row, col]);
+            }
+            break;
+
+        case "blaster":
+            // Fires on current and horizontal neighbors
+            [-1, 0, 1].forEach(offset => {
+                const c = col + offset;
+                if (inBounds(row, c)) cells.push([row, c]);
+            });
+            break;
+
+        case "nuke":
+            // Fires in an X pattern: row±1 & col±1
+            cells.push([row, col]); // center
+            if (inBounds(row - 1, col - 1)) cells.push([row - 1, col - 1]);
+            if (inBounds(row + 1, col + 1)) cells.push([row + 1, col + 1]);
+            if (inBounds(row - 1, col + 1)) cells.push([row - 1, col + 1]);
+            if (inBounds(row + 1, col - 1)) cells.push([row + 1, col - 1]);
+            break;
+    }
+
+    return cells;
+}
+
 
 export const getDebugParam = () => {
     const urlParams = new URLSearchParams(window.location.search);

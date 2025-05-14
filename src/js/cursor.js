@@ -1,5 +1,7 @@
-import {CURSOR_SPEED} from "./constants.js";
+import {CURSOR_SPEED, AVAILABLE_WEAPONS} from "./constants.js";
+import {calculateAffectedCells} from "./utils.js";
 
+let currentWeapon = AVAILABLE_WEAPONS.LASER;
 let rowPosition = 0;   // Row starts at position 0
 let columnPosition = 0; // Column starts at position 0
 let rowDirection = 1;   // 1 means moving down, -1 means moving up
@@ -10,7 +12,8 @@ let moveColumn = true;  // Controls if the column should be moving
 
 const rowHighlight = document.querySelector('#row-highlight');
 const columnHighlight = document.querySelector('#column-highlight');
-const viewfinder = document.querySelector('#viewfinder');
+const blastPreviewLayer = document.querySelector('#blast-preview-layer');
+let viewfinders = document.querySelectorAll('.viewfinder');
 
 let cellSize = getCellSize();
 let cursorInterval = null; //used later
@@ -38,11 +41,12 @@ function moveHighlights() {
     }
 
     // Update the row and column highlight positions
-    rowHighlight.style.transform = `translateY(${rowPosition * cellSize.height}px)`;  // 50px for the cell + 2px gap
-    columnHighlight.style.transform = `translateX(${columnPosition * cellSize.width}px)`;  // 50px for the cell + 2px gap
+    rowHighlight.style.transform = `translateY(${rowPosition * cellSize.height}px)`;
+    columnHighlight.style.transform = `translateX(${columnPosition * cellSize.width}px)`;
 
-    // Update the viewfinder position at the intersection of row and column
-    viewfinder.style.transform = `translate(${columnPosition * cellSize.width}px, ${rowPosition * cellSize.height}px)`;  // Position at the intersection
+    //update viewfinders
+    updateBlastPreview(false);
+
 }
 
 function getCellSize() {
@@ -61,16 +65,22 @@ function getCellSize() {
 
 
 const updateCursorSize = () => {
-    viewfinder.style.width = `${cellSize.width}px`;
-    viewfinder.style.height = `${cellSize.height}px`;
+    viewfinders.forEach(v => {
+        v.style.width = `${cellSize.width}px`;
+        v.style.height = `${cellSize.height}px`;
+    })
 }
 const updateRowSize = () => {
-    columnHighlight.style.width = `${cellSize.height}px`;
+    rowHighlight.style.height = `${cellSize.height}px`;
 }
 const updateColumnSize = () => {
     columnHighlight.style.width = `${cellSize.width}px`;
 }
 
+const resetWeapon = () => {
+    currentWeapon = AVAILABLE_WEAPONS.LASER;
+    updateBlastPreview(true);
+}
 
 const resetCursor = () => {
     clearInterval(cursorInterval);
@@ -86,6 +96,7 @@ const resetCursor = () => {
 }
 
 document.addEventListener("GridInitEvent", function (e) {
+    resetWeapon();
     resetCursor();
 
     // Responsive updates
@@ -97,8 +108,50 @@ document.addEventListener("GridInitEvent", function (e) {
 
     cursorInterval = setInterval(() => {
         moveHighlights();
+        updateBlastPreview();
     }, CURSOR_SPEED);
 });
+
+function updateBlastPreview(newWeapon = false) {
+    const previewLayer = document.getElementById('blast-preview-layer');
+
+    if (newWeapon) {
+        previewLayer.innerHTML = ''; // Clear previous
+    }
+
+    const affected = currentWeapon.getAffectedCells(rowPosition, columnPosition);
+
+    affected.forEach(([r, c]) => {
+        if (newWeapon) { // this works great to create a new animation on weapon change
+            const cell = document.createElement('div');
+            cell.classList.add('viewfinder');
+            cell.style.width = `${cellSize.width}px`;
+            cell.style.height = `${cellSize.height}px`;
+            //this places the viewfinders at the current target location
+            cell.style.left = `${c * cellSize.width}px`;
+            cell.style.top = `${r * cellSize.height}px`;
+            previewLayer.appendChild(cell);
+
+            // requestAnimationFrame(() => {
+            //     then we animate the viewfinders to disperse to their right locations
+                // cell.style.transform = `translate(${c * cellSize.width}px, ${r * cellSize.height}px)`;
+            // })
+        }
+    });
+
+    if (newWeapon) {
+        viewfinders = document.querySelectorAll('.viewfinder');
+    }
+
+    // Update viewfinder positions (applies always)
+    viewfinders.forEach((v, i) => {
+        if (i >= affected.length) return; // safety: skip extra viewfinders
+
+        const [r, c] = affected[i];
+        v.style.left = `${c * cellSize.width}px`;
+        v.style.top = `${r * cellSize.height}px`;
+    });
+}
 
 function updateSizes() {
     cellSize = getCellSize();
@@ -117,6 +170,21 @@ const keyStatus = {
 
 // Listen for keydown and keyup events
 window.addEventListener('keydown', (e) => {
+    //manage weapons
+    if (e.key === '1') {
+        currentWeapon = AVAILABLE_WEAPONS.LASER;
+        updateBlastPreview(true);
+    }
+    if (e.key === '2') {
+        currentWeapon = AVAILABLE_WEAPONS.BLASTER;
+        updateBlastPreview(true);
+    }
+    if (e.key === '3') {
+        currentWeapon = AVAILABLE_WEAPONS.NUKE;
+        updateBlastPreview(true);
+    }
+
+    //row, column and viewfinder management
     if (e.key === 'q') {
         keyStatus.q = true;
         moveRow = false; // Stop row when Q is pressed
@@ -147,6 +215,13 @@ window.addEventListener('keyup', (e) => {
 
 
 //Functions called by QT to control the key state
+const updateWeapon = (weaponId) => {
+    //find weapon
+    currentWeapon = AVAILABLE_WEAPONS[weaponId.toUpperCase()];
+    updateBlastPreview(true);
+    return currentWeapon;
+}
+
 const updateKeyColumn = (isPressed) => {
     keyStatus.d = isPressed;
     moveColumn = !isPressed;
@@ -171,6 +246,7 @@ function dispatchFireEvent() {
             message: "FIRE !!!",
             x: rowPosition,
             y: columnPosition,
+            weapon: currentWeapon,
             time: new Date(),
         },
     });
@@ -178,6 +254,7 @@ function dispatchFireEvent() {
 }
 
 //attach them to window to make them globally accessible
+window.updateWeapon = updateWeapon;
 window.updateKeyColumn = updateKeyColumn;
 window.updateKeyRow = updateKeyRow;
 window.updateKeyFire = updateKeyFire;

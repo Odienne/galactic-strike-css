@@ -1,10 +1,52 @@
 const GRID_SIZE = 10;
 const FIRE_COOLDOWN_MS = 666;
-const CURSOR_SPEED = 444;
+const CURSOR_SPEED = 222;
 const SQUARE_STATES = {'UNKNOWN': 'UNKNOWN', 'HIT': 'HIT', 'MISSED': 'MISSED'};
 const GRID_HTML = document.getElementById('grid');
 const PLAYER_POINTS_HTML = document.getElementById('player-points');
 const ENV = 'dev'; // dev or prod
 const LOCAL_SOUNDS = true; //for local sound testing
 
-export {GRID_SIZE, GRID_HTML, PLAYER_POINTS_HTML, FIRE_COOLDOWN_MS, SQUARE_STATES, ENV, LOCAL_SOUNDS, CURSOR_SPEED};
+const AVAILABLE_WEAPONS = {
+        'LASER': {
+            'name': 'Laser',
+            'id': 'laser',
+            getAffectedCells: (row, col) => {
+                return [[row, col]];
+            }
+        },
+        'BLASTER': {
+            'name': 'Blaster',
+            'id': 'blaster',
+            getAffectedCells: (row, col) => {
+                return [
+                    [row, col - 1],
+                    [row, col],
+                    [row, col + 1],
+                ]; // line
+            }
+        }, 'NUKE': {
+            'name': 'Nuke',
+            'id': 'nuke',
+            getAffectedCells: (row, col) => {
+                return [
+                    [row - 1, col - 1], [row - 1, col + 1]
+                    , [row, col],
+                    [row + 1, col - 1], [row + 1, col + 1],
+                ]; // cross grid
+            }
+        }
+    }
+;
+
+export {
+    GRID_SIZE,
+    GRID_HTML,
+    PLAYER_POINTS_HTML,
+    FIRE_COOLDOWN_MS,
+    SQUARE_STATES,
+    ENV,
+    LOCAL_SOUNDS,
+    CURSOR_SPEED,
+    AVAILABLE_WEAPONS
+};
