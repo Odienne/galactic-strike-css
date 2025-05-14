@@ -8,14 +8,14 @@ const ENV = 'dev'; // dev or prod
 const LOCAL_SOUNDS = true; //for local sound testing
 
 const AVAILABLE_WEAPONS = {
-        'LASER': {
+        '0': {
             'name': 'Laser',
             'id': 'laser',
             getAffectedCells: (row, col) => {
                 return [[row, col]];
             }
         },
-        'BLASTER': {
+        '1': {
             'name': 'Blaster',
             'id': 'blaster',
             getAffectedCells: (row, col) => {
@@ -25,7 +25,8 @@ const AVAILABLE_WEAPONS = {
                     [row, col + 1],
                 ]; // line
             }
-        }, 'NUKE': {
+        },
+        '2': {
             'name': 'Nuke',
             'id': 'nuke',
             getAffectedCells: (row, col) => {
