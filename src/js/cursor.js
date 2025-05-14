@@ -1,7 +1,7 @@
 import {CURSOR_SPEED, AVAILABLE_WEAPONS} from "./constants.js";
 import {calculateAffectedCells} from "./utils.js";
 
-let currentWeapon = AVAILABLE_WEAPONS.LASER;
+let currentWeapon = AVAILABLE_WEAPONS[0];
 let rowPosition = 0;   // Row starts at position 0
 let columnPosition = 0; // Column starts at position 0
 let rowDirection = 1;   // 1 means moving down, -1 means moving up
@@ -78,7 +78,7 @@ const updateColumnSize = () => {
 }
 
 const resetWeapon = () => {
-    currentWeapon = AVAILABLE_WEAPONS.LASER;
+    currentWeapon = AVAILABLE_WEAPONS[0];
     updateBlastPreview(true);
 }
 
@@ -128,14 +128,18 @@ function updateBlastPreview(newWeapon = false) {
             cell.style.width = `${cellSize.width}px`;
             cell.style.height = `${cellSize.height}px`;
             //this places the viewfinders at the current target location
-            cell.style.left = `${c * cellSize.width}px`;
-            cell.style.top = `${r * cellSize.height}px`;
+            cell.style.left = `${columnPosition * cellSize.width}px`;
+            cell.style.top = `${rowPosition * cellSize.height}px`;
             previewLayer.appendChild(cell);
 
-            // requestAnimationFrame(() => {
-            //     then we animate the viewfinders to disperse to their right locations
-                // cell.style.transform = `translate(${c * cellSize.width}px, ${r * cellSize.height}px)`;
-            // })
+            // force reflow to ensure initial position is "seen"
+            void cell.offsetWidth;
+
+            requestAnimationFrame(() => {
+                //then we animate the viewfinders to disperse to their right locations
+                cell.style.left = `${c * cellSize.width}px`;
+                cell.style.top = `${r * cellSize.height}px`;
+            })
         }
     });
 
@@ -172,15 +176,15 @@ const keyStatus = {
 window.addEventListener('keydown', (e) => {
     //manage weapons
     if (e.key === '1') {
-        currentWeapon = AVAILABLE_WEAPONS.LASER;
+        currentWeapon = AVAILABLE_WEAPONS[0];
         updateBlastPreview(true);
     }
     if (e.key === '2') {
-        currentWeapon = AVAILABLE_WEAPONS.BLASTER;
+        currentWeapon = AVAILABLE_WEAPONS[1];
         updateBlastPreview(true);
     }
     if (e.key === '3') {
-        currentWeapon = AVAILABLE_WEAPONS.NUKE;
+        currentWeapon = AVAILABLE_WEAPONS[2];
         updateBlastPreview(true);
     }
 
@@ -217,7 +221,7 @@ window.addEventListener('keyup', (e) => {
 //Functions called by QT to control the key state
 const updateWeapon = (weaponId) => {
     //find weapon
-    currentWeapon = AVAILABLE_WEAPONS[weaponId.toUpperCase()];
+    currentWeapon = AVAILABLE_WEAPONS[weaponId];
     updateBlastPreview(true);
     return currentWeapon;
 }
