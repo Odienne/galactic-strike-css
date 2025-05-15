@@ -1,6 +1,6 @@
 # galactic-strike
 
-This is the interface through which players will enter their guess for the game : Temple of Anubis.
+Destroy all ships to score points.
 
 ## Gameplay
 

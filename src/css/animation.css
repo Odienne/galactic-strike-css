@@ -1,7 +1,7 @@
 .points-popup {
     position: absolute;
-    color: #ff7b29;
-    font-size: 2em;
+    color: #ffffff;
+    font-size: 6em;
     font-weight: bold;
     pointer-events: none;
     animation: pop-up 1s ease-out forwards;
@@ -43,7 +43,7 @@
     position: absolute;
     height: 100px;
     width: 50px;
-    background: url("/src/img/missile.png") no-repeat 100% 100%;
+    background: url("../img/missile.png") no-repeat 100% 100%;
     background-size: contain;
     z-index: 10;
     pointer-events: none;

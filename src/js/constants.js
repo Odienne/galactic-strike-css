@@ -1,6 +1,6 @@
 const GRID_SIZE = 10;
-const FIRE_COOLDOWN_MS = 666;
-const CURSOR_SPEED = 222;
+const FIRE_COOLDOWN_MS = 800;
+const CURSOR_SPEED = 600;
 const SQUARE_STATES = {'UNKNOWN': 'UNKNOWN', 'HIT': 'HIT', 'MISSED': 'MISSED'};
 const GRID_HTML = document.getElementById('grid');
 const PLAYER_POINTS_HTML = document.getElementById('player-points');

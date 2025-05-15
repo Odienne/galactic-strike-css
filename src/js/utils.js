@@ -1,10 +1,10 @@
 import {GRID_HTML, SQUARE_STATES, LOCAL_SOUNDS} from "./constants.js";
 import {playLaserHitSound, playLaserMissSound, playShipExplosion} from "./sounds.js";
+import Sounds from '../data/sfx.json';
 
-export const fetchAudiosData = async () => {
+export const loadSounds = async () => {
     try {
-        const response = await fetch('src/data/sfx.json');
-        let data = await response.json();
+        let data = Sounds;
         //populates sounds object property with js objects if local testing
         if (LOCAL_SOUNDS === true) {
             for (const key in data) {
@@ -16,26 +16,16 @@ export const fetchAudiosData = async () => {
 
         const SoundsLoadedEvent = new CustomEvent("SoundsLoadedEvent", {
             detail: {
-                message: "FIRE !!!",
+                message: "Sounds Loaded",
                 sounds: data,
                 time: new Date(),
             },
         });
         document.dispatchEvent(SoundsLoadedEvent)
 
-
         return data;
     } catch (error) {
         console.error('Error fetching audios data:', error);
-    }
-};
-
-export const fetchShipsData = async () => {
-    try {
-        const response = await fetch('src/data/ships.json');
-        return await response.json();
-    } catch (error) {
-        console.error('Error fetching ships data:', error);
     }
 };
 
@@ -70,6 +60,7 @@ export const fire = (pos, Grid, weapon) => {
                 try {
                     const square = Grid.getSquare(currentPos);
                     const ship = Grid.getShip(currentPos);
+
                     const alreadyHitSquare = square.classList.contains(SQUARE_STATES.HIT.toLowerCase());
 
                     if (ship && !alreadyHitSquare) {
@@ -93,6 +84,7 @@ export const fire = (pos, Grid, weapon) => {
 
                 } catch (e) {
                     // Ignore out-of-bounds or failed cell access
+                    console.error(e)
                 }
             }, 500); // Wait for bomb animation
         }, index * 100); // This delays each bomb based on its order
@@ -118,7 +110,7 @@ const dropBomb = (pos, Grid) => {
         // Enable transition via CSS class
         bomb.style.transition = 'top 0.6s ease-in';
 
-        // 👇 Force a reflow here
+        // Force a reflow here
         void bomb.offsetHeight; // Triggers reflow
 
         // Now animate
@@ -130,6 +122,7 @@ const dropBomb = (pos, Grid) => {
         }, 500);
     } catch (e) {
         //outbound targetX or Y
+        console.error(e)
     }
 }
 
@@ -157,6 +150,7 @@ export const showExplosion = (pos, Grid) => {
         }, 600);
     } catch (e) {
         //outbound targetX or Y
+        console.error(e)
     }
 }
 
@@ -187,21 +181,31 @@ export const showPointsOnHit = (square, ship) => {
     pointsPopup.classList.add('points-popup');
     pointsPopup.textContent = '+ ' + points;
 
-    // Position it relative to the grid
-    const squareRect = square.getBoundingClientRect();
-    const gridRect = GRID_HTML.getBoundingClientRect();
-
-    pointsPopup.style.left = (squareRect.left - gridRect.left + square.offsetWidth / 2 - 10) + 'px';
-    pointsPopup.style.top = (squareRect.top - gridRect.top + square.offsetHeight / 2 - 10) + 'px';
-
+    // Add to DOM first (hidden), so we can measure it
+    pointsPopup.style.visibility = 'hidden';
     GRID_HTML.appendChild(pointsPopup);
 
-    // Remove after animation
+    const squareRect = square.getBoundingClientRect();
+    const gridRect = GRID_HTML.getBoundingClientRect();
+    const popupRect = pointsPopup.getBoundingClientRect();
+
+    // Center the popup over the square
+    const left = squareRect.left - gridRect.left + (square.offsetWidth / 2) - (popupRect.width / 2);
+    const top = squareRect.top - gridRect.top + (square.offsetHeight / 2) - (popupRect.height / 2);
+
+    pointsPopup.style.left = `${left}px`;
+    pointsPopup.style.top = `${top}px`;
+
+    // Make it visible again
+    pointsPopup.style.visibility = 'visible';
+
+    // Optional: add animation class here
+
     setTimeout(() => {
         try {
             GRID_HTML.removeChild(pointsPopup);
         } catch (e) {
-
+            console.error(e)
         }
     }, 800);
 }

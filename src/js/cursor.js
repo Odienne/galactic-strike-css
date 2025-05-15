@@ -258,7 +258,7 @@ function dispatchFireEvent() {
 }
 
 //attach them to window to make them globally accessible
-window.updateWeapon = updateWeapon;
+window.setWeapon = updateWeapon;
 window.updateKeyColumn = updateKeyColumn;
 window.updateKeyRow = updateKeyRow;
 window.updateKeyFire = updateKeyFire;

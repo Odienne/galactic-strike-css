@@ -1,7 +1,16 @@
+import './translation.js';
+import './background.js';
+import './cursor.js';
+import './timer.js';
+
+import Ships from '../data/ships.json';
+
 import Grid from './Grid.js';
-import {fetchAudiosData, fetchShipsData, fire, getDebugParam, restart,} from "./utils.js";
+import {fire, getDebugParam, loadSounds} from "./utils.js";
 import {signalNewGrid, signalScore} from "./signals.js";
 import {FIRE_COOLDOWN_MS, PLAYER_POINTS_HTML} from "./constants.js";
+
+
 
 /* Clean way of keeping track of game state */
 const GameState = {
@@ -16,8 +25,8 @@ const GameState = {
 
 
 const startGame = async () => {
-    GameState.sounds = await fetchAudiosData();
-    GameState.ships = await fetchShipsData();
+    GameState.sounds = await loadSounds();
+    GameState.ships = Ships;
 
     GameState.grid = new Grid(GameState.ships);
     GameState.hasGameStarted = true;

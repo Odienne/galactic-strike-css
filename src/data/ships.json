@@ -6,18 +6,18 @@
     "size": 5,
     "images": {
       "vertical": [
-        "src/img/ships/default/carrier1.png",
-        "src/img/ships/default/carrier2.png",
-        "src/img/ships/default/carrier3.png",
-        "src/img/ships/default/carrier4.png",
-        "src/img/ships/default/carrier5.png"
+        "./src/img/ships/default/carrier1.png",
+        "./src/img/ships/default/carrier2.png",
+        "./src/img/ships/default/carrier3.png",
+        "./src/img/ships/default/carrier4.png",
+        "./src/img/ships/default/carrier5.png"
       ],
       "horizontal": [
-        "src/img/ships/default/carrier1.png",
-        "src/img/ships/default/carrier2.png",
-        "src/img/ships/default/carrier3.png",
-        "src/img/ships/default/carrier4.png",
-        "src/img/ships/default/carrier5.png"
+        "./src/img/ships/default/carrier1.png",
+        "./src/img/ships/default/carrier2.png",
+        "./src/img/ships/default/carrier3.png",
+        "./src/img/ships/default/carrier4.png",
+        "./src/img/ships/default/carrier5.png"
       ]
     },
     "positions": []
@@ -29,14 +29,14 @@
     "size": 3,
     "images": {
       "vertical": [
-        "src/img/ships/default/cruiser1.png",
-        "src/img/ships/default/cruiser2.png",
-        "src/img/ships/default/cruiser3.png"
+        "./src/img/ships/default/cruiser1.png",
+        "./src/img/ships/default/cruiser2.png",
+        "./src/img/ships/default/cruiser3.png"
       ],
       "horizontal": [
-        "src/img/ships/default/cruiser1.png",
-        "src/img/ships/default/cruiser2.png",
-        "src/img/ships/default/cruiser3.png"
+        "./src/img/ships/default/cruiser1.png",
+        "./src/img/ships/default/cruiser2.png",
+        "./src/img/ships/default/cruiser3.png"
       ]
     },
     "positions": []
@@ -48,12 +48,12 @@
     "size": 2,
     "images": {
       "vertical": [
-        "src/img/ships/default/submarine1.png",
-        "src/img/ships/default/submarine2.png"
+        "./src/img/ships/default/submarine1.png",
+        "./src/img/ships/default/submarine2.png"
       ],
       "horizontal": [
-        "src/img/ships/default/submarine1.png",
-        "src/img/ships/default/submarine2.png"
+        "./src/img/ships/default/submarine1.png",
+        "./src/img/ships/default/submarine2.png"
       ]
     },
     "positions": []
@@ -65,12 +65,12 @@
     "size": 2,
     "images": {
       "vertical": [
-        "src/img/ships/default/submarine_dark1.png",
-        "src/img/ships/default/submarine_dark2.png"
+        "./src/img/ships/default/submarine_dark1.png",
+        "./src/img/ships/default/submarine_dark2.png"
       ],
       "horizontal": [
-        "src/img/ships/default/submarine_dark1.png",
-        "src/img/ships/default/submarine_dark2.png"
+        "./src/img/ships/default/submarine_dark1.png",
+        "./src/img/ships/default/submarine_dark2.png"
       ]
     },
     "positions": []
@@ -82,10 +82,10 @@
     "size": 1,
     "images": {
       "vertical": [
-        "src/img/ships/default/destroyer1.png"
+        "./src/img/ships/default/destroyer1.png"
       ],
       "horizontal": [
-        "src/img/ships/default/destroyer1.png"
+        "./src/img/ships/default/destroyer1.png"
       ]
     },
     "positions": []

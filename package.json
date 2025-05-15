@@ -1,0 +1,25 @@
+{
+  "name": "galactic-strike",
+  "version": "1.0.0",
+  "description": "Destroy all ships to score points.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node run_build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fusion-gameside/galactic-strike.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/fusion-gameside/galactic-strike/issues"
+  },
+  "homepage": "https://github.com/fusion-gameside/galactic-strike#readme",
+  "devDependencies": {
+    "esbuild": "0.25.4"
+  }
+}
