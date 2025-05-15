@@ -1,17 +1,28 @@
-let localTimer = 180; //3 minutes to seconds
-let localTimerInterval = null;
+import {signalTime} from "./signals.js";
+
+let totalDuration = 180; // 3 minutes in seconds
+let endTime;
 
 const startLocalTimer = () => {
-    localTimerInterval = setInterval(() => {
-        let minutes = Math.floor(localTimer / 60);
-        let seconds = localTimer % 60;
-        document.getElementById("timer").innerHTML = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        localTimer--;
-        if (localTimer < 0) {
-            clearInterval(localTimerInterval);
+    endTime = Date.now() + totalDuration * 1000;
+
+    const updateTimer = () => {
+        const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+
+        document.getElementById("timer").innerHTML =
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        if (remaining > 0) {
+            signalTime(remaining);
+            requestAnimationFrame(updateTimer); // more efficient & smoother than setInterval
+        } else {
             document.getElementById("timer").innerHTML = "Time's up!";
         }
-    }, 1000);
-}
+    };
+
+    updateTimer();
+};
 
 document.addEventListener("DOMContentLoaded", startLocalTimer);
