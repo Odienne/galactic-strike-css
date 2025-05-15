@@ -41,6 +41,10 @@
   });
   window.setLanguage = setLanguage;
 
+  // src/js/background.js
+  var video = document.getElementById("bg-video");
+  video.playbackRate = 0.5;
+
   // src/js/constants.js
   var GRID_SIZE = 10;
   var FIRE_COOLDOWN_MS = 800;
@@ -48,7 +52,7 @@
   var SQUARE_STATES = { "UNKNOWN": "UNKNOWN", "HIT": "HIT", "MISSED": "MISSED" };
   var GRID_HTML = document.getElementById("grid");
   var PLAYER_POINTS_HTML = document.getElementById("player-points");
-  var LOCAL_SOUNDS = true;
+  var LOCAL_SOUNDS = false;
   var AVAILABLE_WEAPONS = {
     "0": {
       "name": "Laser",
@@ -85,11 +89,22 @@
 
   // src/js/signals.js
   var signalScore = (score) => {
+    sendToQt({ score });
+  };
+  var signalTime = (time) => {
+    sendToQt({ time });
   };
   var signalPlaySound = (id) => {
+    sendToQt({ "audio": id });
   };
   var signalNewGrid = (grid) => {
+    sendToQt({ grid });
   };
+  function sendToQt(data) {
+    if (window.QtBridge) {
+      window.QtBridge.receiveData(JSON.stringify(data));
+    }
+  }
 
   // src/js/sounds.js
   var sounds = {};
@@ -513,19 +528,23 @@
   window.updateKeyFire = updateKeyFire;
 
   // src/js/timer.js
-  var localTimer = 180;
-  var localTimerInterval = null;
+  var totalDuration = 180;
+  var endTime;
   var startLocalTimer = () => {
-    localTimerInterval = setInterval(() => {
-      let minutes = Math.floor(localTimer / 60);
-      let seconds = localTimer % 60;
+    endTime = Date.now() + totalDuration * 1e3;
+    const updateTimer = () => {
+      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1e3));
+      const minutes = Math.floor(remaining / 60);
+      const seconds = remaining % 60;
       document.getElementById("timer").innerHTML = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-      localTimer--;
-      if (localTimer < 0) {
-        clearInterval(localTimerInterval);
+      if (remaining > 0) {
+        signalTime(remaining);
+        requestAnimationFrame(updateTimer);
+      } else {
         document.getElementById("timer").innerHTML = "Time's up!";
       }
-    }, 1e3);
+    };
+    updateTimer();
   };
   document.addEventListener("DOMContentLoaded", startLocalTimer);
 

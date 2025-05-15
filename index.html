@@ -8,6 +8,15 @@
     <link rel="stylesheet" href="src/css/main.css">
     <link rel="stylesheet" href="src/css/bg.css">
     <link rel="stylesheet" href="src/css/animation.css">
+
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+    <script>
+        if (typeof qt !== 'undefined' && typeof QWebChannel !== 'undefined') {
+            new QWebChannel(qt.webChannelTransport, function (channel) {
+                window.QtBridge = channel.objects.bridge;
+            });
+        }
+    </script>
 </head>
 <body>
 
@@ -44,7 +53,7 @@
 </section>
 <section id="game-grid">
     <video id="bg-video" muted loop autoplay>
-        <source src="./src/video/bg_video.webm" type="video/webm">
+        <source src="./src/video/test.mp4" type="video/mp4">
         Your browser does not support the video tag.
     </video>
 

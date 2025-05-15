@@ -2,7 +2,14 @@
  * Signals to Qt app to update player score
  */
 const signalScore = (score) => {
-    //todo
+    sendToQt({score})
+}
+
+/**
+ * Signals to Qt app new timer value
+ */
+const signalTime = (time) => {
+    sendToQt({time})
 }
 
 /**
@@ -10,7 +17,7 @@ const signalScore = (score) => {
  * @param id
  */
 const signalPlaySound = (id) => {
-    //todo
+    sendToQt({"audio": id})
 }
 
 /**
@@ -18,8 +25,17 @@ const signalPlaySound = (id) => {
  * @param grid
  */
 const signalNewGrid = (grid) => {
-//todo
+    sendToQt({grid})
 }
 
+/**
+ * Generic function to send data to Qt
+ * @param data
+ */
+function sendToQt(data) {
+    if (window.QtBridge) {
+        window.QtBridge.receiveData(JSON.stringify(data));
+    }
+}
 
-export {signalScore, signalPlaySound, signalNewGrid};
+export {signalScore, signalTime, signalPlaySound, signalNewGrid};

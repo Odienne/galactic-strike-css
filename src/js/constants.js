@@ -5,7 +5,7 @@ const SQUARE_STATES = {'UNKNOWN': 'UNKNOWN', 'HIT': 'HIT', 'MISSED': 'MISSED'};
 const GRID_HTML = document.getElementById('grid');
 const PLAYER_POINTS_HTML = document.getElementById('player-points');
 const ENV = 'dev'; // dev or prod
-const LOCAL_SOUNDS = true; //for local sound testing
+const LOCAL_SOUNDS = false; //for local sound testing
 
 const AVAILABLE_WEAPONS = {
         '0': {
