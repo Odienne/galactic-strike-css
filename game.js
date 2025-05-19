@@ -42,7 +42,6 @@
 
   // src/js/background.js
   var video = document.getElementById("bg-video");
-  video.playbackRate = 0.5;
 
   // src/js/constants.js
   var GRID_SIZE = 10;
@@ -232,21 +231,35 @@
     }, 500 + affected.length * 150 + 500);
   };
   var dropBomb = (pos, Grid2) => {
-    const bomb = document.createElement("div");
-    bomb.classList.add("missile");
-    Grid2.htmlElement.appendChild(bomb);
-    const { targetX, targetY } = getTargetCoords(pos, Grid2);
-    try {
-      bomb.style.left = `${targetX}px`;
-      bomb.style.top = `-30px`;
-      bomb.style.transition = "top 0.6s ease-in";
-      void bomb.offsetHeight;
-      bomb.style.top = `${targetY}px`;
-      setTimeout(() => {
-        Grid2.htmlElement.removeChild(bomb);
-      }, 500);
-    } catch (e) {
-      console.error(e);
+    {
+      const bomb = document.createElement("div");
+      bomb.classList.add("missile");
+      Grid2.htmlElement.appendChild(bomb);
+      const { targetX, targetY } = getTargetCoords(pos, Grid2);
+      try {
+        const gridRect = Grid2.htmlElement.getBoundingClientRect();
+        const startX = gridRect.width / 2;
+        const startY = gridRect.height;
+        bomb.style.position = "absolute";
+        bomb.style.left = `${startX}px`;
+        bomb.style.top = `${startY}px`;
+        const relativeTargetX = targetX;
+        const relativeTargetY = targetY;
+        const deltaX = relativeTargetX - startX;
+        const deltaY = relativeTargetY - startY;
+        const angleRad = Math.atan2(deltaY, deltaX);
+        const angleDeg = angleRad * (180 / Math.PI);
+        bomb.style.transform = `rotate(${angleDeg}deg)`;
+        void bomb.offsetHeight;
+        bomb.style.left = `${relativeTargetX}px`;
+        bomb.style.top = `${relativeTargetY}px`;
+        bomb.style.transform = `rotate(${angleDeg + 90}deg) scale(0.8)`;
+        setTimeout(() => {
+          Grid2.htmlElement.removeChild(bomb);
+        }, 600);
+      } catch (e) {
+        console.error(e);
+      }
     }
   };
   var showExplosion = (pos, Grid2) => {

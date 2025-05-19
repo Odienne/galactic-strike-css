@@ -9,6 +9,17 @@ html, body, #grid {
     overflow: hidden;
 }
 
+#border-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+
+    pointer-events: none;
+}
+
 #grid {
     position: relative;
     z-index: 10;
@@ -21,53 +32,65 @@ html, body, #grid {
 }
 
 #grid .square {
-    width: 10%;   /* 100 / 10 columns */
-    height: 10%;  /* 100 / 10 rows */
+    width: 10%; /* 100 / 10 columns */
+    height: 10%; /* 100 / 10 rows */
     box-sizing: border-box;
 }
 
 body {
-    display: grid;
-    grid-template-columns: 1fr 3fr; /* example */
+    display: flex;
 }
 
 #side-infos {
     height: 100%;
-    background: #b6b6b6;
+    width: 34%;
 
-    display: grid;
-    grid-template-rows: 30% 70%;
     position: relative;
     z-index: 100;
+    /*to align with the design*/
+    margin-left: 52px;
+    margin-top: 57px;
 }
 
 #game-grid {
     width: 100%;
     position: relative;
+    margin: 30px 42px 48px 47px;
 }
 
 #enemy {
+    height: 59%;
     background: red;
-
+    position: relative;
 }
 
 #infos {
-    padding: 8px;
-    background: #ff7b29;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin-left: 52px;
+    margin-bottom: 40px;
+    z-index: 2000;
+    width: 23%;
+    height: 260px;
+    background: #fffafa;
 
-    display: grid;
-    grid-template-rows: 10% 90%;
+    overflow: hidden;
 }
 
 #ships-infos {
-    background: aquamarine;
     width: 100%;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     align-content: center;
+    flex-wrap: wrap;
+}
+
+#ships-infos .ship {
+    width: 44%;
 }
 
 #ships-infos .ship img.sunk {
@@ -81,6 +104,8 @@ body {
 
 #video-placeholder {
     width: 100%;
-    height: 100%;
+    height: auto;
+    object-fit: cover;
+    z-index: 100;
 }
 

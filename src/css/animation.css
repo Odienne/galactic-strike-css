@@ -47,6 +47,8 @@
     background-size: contain;
     z-index: 10;
     pointer-events: none;
+    transform-origin: center bottom; /* rotate around base */
+    transition: top 0.6s ease-in, left 0.6s ease-in, transform 0.6s ease;
 }
 
 /* comment this to play the gif explosion instead  */

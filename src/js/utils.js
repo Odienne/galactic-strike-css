@@ -96,34 +96,56 @@ export const fire = (pos, Grid, weapon) => {
 };
 
 const dropBomb = (pos, Grid) => {
-    const bomb = document.createElement('div');
-    bomb.classList.add('missile');
-    Grid.htmlElement.appendChild(bomb);
+    {
+        const bomb = document.createElement('div');
+        bomb.classList.add('missile');
+        Grid.htmlElement.appendChild(bomb);
 
-    const {targetX, targetY} = getTargetCoords(pos, Grid);
+        const { targetX, targetY } = getTargetCoords(pos, Grid);
 
-    try {
-        // Initial position (top of the screen, in correct column)
-        bomb.style.left = `${targetX}px`;
-        bomb.style.top = `-30px`;
+        try {
+            // Get the bounding box of the Grid container
+            const gridRect = Grid.htmlElement.getBoundingClientRect();
 
-        // Enable transition via CSS class
-        bomb.style.transition = 'top 0.6s ease-in';
+            // Starting coordinates (bottom center of Grid)
+            const startX = gridRect.width / 2;
+            const startY = gridRect.height;
 
-        // Force a reflow here
-        void bomb.offsetHeight; // Triggers reflow
+            // Position the missile at the bottom center
+            bomb.style.position = 'absolute';
+            bomb.style.left = `${startX}px`;
+            bomb.style.top = `${startY}px`;
 
-        // Now animate
-        bomb.style.top = `${targetY}px`;
+            // Adjust target coordinates if they are relative to Grid
+            const relativeTargetX = targetX;
+            const relativeTargetY = targetY;
 
-        // Trigger explosion after animation ends
-        setTimeout(() => {
-            Grid.htmlElement.removeChild(bomb);
-        }, 500);
-    } catch (e) {
-        //outbound targetX or Y
-        console.error(e)
+            // Calculate angle from start to target
+            const deltaX = relativeTargetX - startX;
+            const deltaY = relativeTargetY - startY;
+            const angleRad = Math.atan2(deltaY, deltaX);
+            const angleDeg = angleRad * (180 / Math.PI);
+
+            // Rotate missile to face the target direction (missile is pointing up by default)
+            bomb.style.transform = `rotate(${angleDeg}deg)`;
+
+            // Force reflow before animating
+            void bomb.offsetHeight;
+
+            // Animate to the target position
+            bomb.style.left = `${relativeTargetX}px`;
+            bomb.style.top = `${relativeTargetY}px`;
+            bomb.style.transform = `rotate(${angleDeg+90}deg) scale(0.8)`;
+
+            // Remove after animation ends
+            setTimeout(() => {
+                Grid.htmlElement.removeChild(bomb);
+            }, 600);
+        } catch (e) {
+            console.error(e);
+        }
     }
+
 }
 
 export const showExplosion = (pos, Grid) => {

@@ -20,6 +20,8 @@
 </head>
 <body>
 
+<img src="src/img/border.png" alt="" id="border-image">
+
 <section id="side-infos">
     <div id="enemy">
         <video id="video-placeholder" muted loop autoplay>
@@ -27,30 +29,33 @@
             Your browser does not support the video tag.
         </video>
     </div>
-    <div id="infos">
-        <div id="player-points-container">
-            <h2><span id="score-text"></span> <span id="player-points">0</span></h2>
-            <h3 id="timer">03:00</h3>
+</section>
+
+<div id="infos">
+    <div id="player-points-container">
+        <h2><span id="score-text"></span> <span id="player-points">0</span></h2>
+        <h3 id="timer">03:00</h3>
+    </div>
+    <div id="ships-infos">
+        <div class="ship" id="destroyer">
+            <img src="src/img/ships/destroyer.png" alt="">
         </div>
-        <div id="ships-infos">
-            <div class="ship" id="destroyer">
-                <img src="src/img/ships/destroyer.png" alt="">
-            </div>
-            <div class="ship" id="submarine1">
-                <img src="src/img/ships/submarine1.png" alt="">
-            </div>
-            <div class="ship" id="submarine2">
-                <img src="src/img/ships/submarine2.png" alt="">
-            </div>
-            <div class="ship" id="cruiser">
-                <img src="src/img/ships/cruiser.png" alt="" style="max-width: 80%;">
-            </div>
-            <div class="ship" id="carrier">
-                <img src="src/img/ships/carrier.png" alt="" style="max-width: 100%;">
-            </div>
+        <div class="ship" id="submarine1">
+            <img src="src/img/ships/submarine1.png" alt="">
+        </div>
+        <div class="ship" id="submarine2">
+            <img src="src/img/ships/submarine2.png" alt="">
+        </div>
+        <div class="ship" id="cruiser">
+            <img src="src/img/ships/cruiser.png" alt="" style="max-width: 80%;">
+        </div>
+        <div class="ship" id="carrier">
+            <img src="src/img/ships/carrier.png" alt="" style="max-width: 100%;">
         </div>
     </div>
-</section>
+</div>
+
+
 <section id="game-grid">
     <video id="bg-video" muted loop autoplay>
         <source src="./src/video/bg_video.webm" type="video/webm">
